@@ -7,7 +7,7 @@ const Content = (props) => props.content.map(
 
 const Part = (props) => <p>{props.item.part} {props.item.exercise}</p>
 
-const Total = (props) => props.total
+const Total = (props) => props.content.length
 
 const App = () => {
   const course = 'Half Stack application development'
@@ -39,7 +39,7 @@ const App = () => {
     <div>
       <Header header={course} />
       <Content content={contents} />
-      <Total total={contents.length} />      
+      <Total content={contents} />      
     </div>
   )
 }
