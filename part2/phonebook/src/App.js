@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personsService from './services/persons'
 import './App.css';
 
 
@@ -24,7 +24,15 @@ const PhoneForm = (props) =>
 const Persons = (props) => (
   props.persons
     .filter(person => person.name.toLowerCase().startsWith(props.searchFilter))
-    .map(person => <p key={person.name}>{person.name}: {person.number}</p>)
+    .map(person => <p key={person.name}>
+      {person.name}: {person.number}
+      <DeleteButton clickHandler={() => props.handleDelete(person.id)} />
+    </p>)
+)
+
+
+const DeleteButton = (props) => (
+  <button onClick={props.clickHandler}>Delete</button>
 )
 
 const App = () => {
@@ -47,17 +55,22 @@ const App = () => {
   const addPhone = (event) => {
     event.preventDefault()
     if (personsInclude(newName)) {
-      alert(`${newName} already in the list!`)
+      const id = persons.find(person => person.name === newName).id
+      updateHandler({
+        id: id,
+        name: newName,
+        number: newPhone
+      })
     } else {
-      axios
-        .post("http://localhost:3001/persons",
-          {
-            name: newName,
-            number: newPhone
-          })
-        .then(response => setPersons(persons.concat(response.data)))
+      personsService.savePerson(
+        {
+          name: newName,
+          number: newPhone
+        })
+        .then(data => setPersons(persons.concat(data)))
     }
   }
+
 
   const handleNameChange = (event) =>
     setNewName(event.target.value);
@@ -67,13 +80,23 @@ const App = () => {
     setNewSearch(event.target.value);
   };
 
+  const deleteHandler = (id) => {
+    if (window.confirm("Do you really want to delete?"))
+      return personsService
+        .deletePerson(id)
+        .then(() => setPersons(persons.filter(person => person.id !== id)));
+  }
+
+  const updateHandler = (p) => {
+    if (window.confirm("Name exists, would you like to edit the number?"))
+    return personsService
+      .updatePerson(p)
+      .then((data) => setPersons(persons.map(person => person.id === p.id ? data : person)));
+  }
+
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(res => {
-        setPersons(res.data)
-      })
+    personsService.getPersons().then(data => setPersons(data))
   }, [])
 
 
@@ -91,7 +114,10 @@ const App = () => {
 
       <h2>Numbers</h2>
 
-      <Persons persons={persons} searchFilter={newSearch} />
+      <Persons persons={persons}
+        searchFilter={newSearch}
+        handleDelete={deleteHandler}
+        handleUpdate={updateHandler} />
 
     </div>
   )
