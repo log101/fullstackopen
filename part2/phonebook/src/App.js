@@ -49,10 +49,13 @@ const App = () => {
     if (personsInclude(newName)) {
       alert(`${newName} already in the list!`)
     } else {
-      setPersons(persons.concat({
-        name: newName,
-        number: newPhone
-      }))
+      axios
+        .post("http://localhost:3001/persons",
+          {
+            name: newName,
+            number: newPhone
+          })
+        .then(response => setPersons(persons.concat(response.data)))
     }
   }
 
@@ -71,8 +74,8 @@ const App = () => {
       .then(res => {
         setPersons(res.data)
       })
-  },[])
-  
+  }, [])
+
 
   return (
     <div>
@@ -89,7 +92,7 @@ const App = () => {
       <h2>Numbers</h2>
 
       <Persons persons={persons} searchFilter={newSearch} />
-      
+
     </div>
   )
 }

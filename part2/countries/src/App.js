@@ -19,7 +19,7 @@ const DetailedCountry = (props) => {
     weather: [{description: ""}]});
   useEffect(() => {
     axios
-      .get(`https://api.openweathermap.org/data/2.5/weather?lat=${props.country.latlng[0]}&lon=${props.country.latlng[1]}&appid=748e65f966e8aaa075b29b42a168349a`)
+      .get(`https://api.openweathermap.org/data/2.5/weather?lat=${props.country.latlng[0]}&lon=${props.country.latlng[1]}&appid=${process.env.REACT_APP_API_KEY}`)
       .then(res =>
         {
           console.log(res.data)
